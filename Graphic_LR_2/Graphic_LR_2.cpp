@@ -4,6 +4,9 @@
 #include "GLFW\glfw3.h"
 
 #include <iostream>
+#include "ShaderLoader.h"
+
+#include <Windows.h>
 
 int main()
 {
@@ -97,48 +100,93 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    // вершинный шейдер
-    const char* vert_shader =
-        "#version 410 core\n"
-        "layout (location = 0) in vec3 vp;"
-        "void main() {"
-        "   gl_Position = vec4(vp, 1.0);"
-        "}";
-
-    // фрагментный шейдер
-    const char* frag_shader =
-        "#version 420 core\n"
-        "out vec4 frag_colour;"
-        "void main() {"
-        "   frag_colour = vec4(0.2, 0.7, 0.5, 1.0);"
-        "}";
-
-    // компиляция шейдеров
-
-    GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vs, 1, &vert_shader, NULL);
-    glCompileShader(vs);
-
-    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fs, 1, &frag_shader, NULL);
-    glCompileShader(fs);
 
 
-    // объединение шейдеров в объект шейдерной программы
-    GLuint shader_program = glCreateProgram();
-    glAttachShader(shader_program, vs);
-    glAttachShader(shader_program, fs);
+    /*
+            Подключение шейдеров
+            (прямая версия)
+            (раскоментировать нужный вариант)
+                                                    */
 
-    glLinkProgram(shader_program);
+        // вершинный шейдер
+    //const char* vert_shader =
+    //    "#version 460 core\n"
+    //    "layout (location = 0) in vec3 vp;"
+    //    "void main() {"
+    //    "   gl_Position = vec4(vp, 1.0);"
+    //    "}";
+
+    //    // фрагментный шейдер
+    //const char* frag_shader =
+    //    "#version 460 core\n"
+    //    "out vec4 frag_colour;"
+    //    "uniform vec4 ourColour;"
+    //    "void main() {"
+    //    "   frag_colour = ourColour;"
+    //    "}";
+
+    //    // компиляция шейдеров
+    //GLuint vs = glCreateShader(GL_VERTEX_SHADER);
+    //glShaderSource(vs, 1, &vert_shader, NULL);
+    //glCompileShader(vs);
+
+    //GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+    //glShaderSource(fs, 1, &frag_shader, NULL);
+    //glCompileShader(fs);
+
+    //
+    //    // объединение шейдеров в объект шейдерной программы
+    //GLuint shader_program = glCreateProgram();
+    //glAttachShader(shader_program, vs);
+    //glAttachShader(shader_program, fs);
+
+    //glLinkProgram(shader_program);
+
+    /*
+            Подключение шейдеров 
+            (версия с подключением из файлов)
+                                                    */
+
+    GLuint shader_program = LoadShaders("Shaders/vertex.txt", "Shaders/fragment.txt");
+    if (shader_program == 0)
+    {
+        std::cerr << "Failed to load shaders!" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+
+    /*
+            Конец кода для подключения шейдеров
+                                                    */
+
+
+
+
+    // получение адреса для изменения цвета (прямой вариант)
+    //GLint colourLocation = glGetUniformLocation(shader_program, "ourColour");
+
+    // получение адреса для изменения цвета (файловый вариант)
+    GLint colourLocation = glGetUniformLocation(shader_program, "ourColour");
+
+
 
     // тело цикла отрисовки
     while (!glfwWindowShouldClose(window))
     {
+        float timeValue = glfwGetTime();
+
         glClearColor(1.0f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shader_program);
         glBindVertexArray(VAO);
+
+        glUniform4f(
+            colourLocation,
+            (float)0.3f + 0.5f * sin(1.5f * timeValue),
+            (float)0.6f + 0.3f * sin(3.0f * timeValue),
+            (float)1.0f - 0.8f * sin(timeValue + 0.5f * PI),
+            1.0f);
         
         glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
         
