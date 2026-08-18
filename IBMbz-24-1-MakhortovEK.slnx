@@ -3,5 +3,6 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="Graphic_LR_1/Graphic_LR_1.vcxproj" />
+  <Project Path="Graphic_LR_1/Graphic_LR_1.vcxproj" Id="e921b4e8-e0b8-4c3c-b864-a56750b2790d" />
+  <Project Path="Graphic_LR_2/Graphic_LR_2.vcxproj" Id="994d3311-4195-4f2b-b7e2-a3bf6bbb4372" />
 </Solution>
