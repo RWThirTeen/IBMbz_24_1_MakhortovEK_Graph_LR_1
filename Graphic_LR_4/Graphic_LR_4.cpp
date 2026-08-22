@@ -12,6 +12,31 @@
 
 #include <Windows.h>
 
+
+
+// переменные камеры
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
+
+const unsigned int SCR_WIDTH = 1024;
+const unsigned int SCR_HEIGHT = 768;
+
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+float yaw = -90.0f;
+float pitch = 0.0f;
+
+double lastX = SCR_WIDTH / 2.0f;
+double lastY = SCR_HEIGHT / 2.0f;
+
+const float cameraSpeed = 0.05f;
+float cameraSensitivity = 0.1f;
+
+bool firstMouse = true;
+
+
+
 int main()
 {
     // Проверка инициализации библиотеки GLFW
@@ -26,11 +51,6 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-
-
-
-
 
     // создание контекста окна
     GLFWwindow* window = glfwCreateWindow(512, 512, "MainWindow", NULL, NULL);
@@ -127,14 +147,28 @@ int main()
     GLint transformLocation = glGetUniformLocation(shader_program, "transform");
 
     // настройка камеры
-    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
 
-    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw) * cos(glm::radians(pitch)));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw) * cos(glm::radians(pitch)));
 
-    glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    
+    
+
+    //glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+    //glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+    // 
+    //glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+    //glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+
+    //glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+    
+
+    
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    
 
     // матрицы проекции и вида
     glm::mat4 projection = glm::perspective(
@@ -149,6 +183,20 @@ int main()
     // тело цикла отрисовки
     while (!glfwWindowShouldClose(window))
     {
+        // управление камерой
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            cameraPos += cameraFront * cameraSpeed;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            cameraPos -= cameraFront * cameraSpeed;
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+
+
+
+        // отрисовка
+
         float timeValue = glfwGetTime();
 
         glClearColor(1.0f, 0.2f, 0.3f, 1.0f);
@@ -158,7 +206,19 @@ int main()
         glBindVertexArray(VAO);
 
 
-        glm::mat4 view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+        glUniformMatrix4fv(
+            projectionLocation, 
+            1, 
+            GL_FALSE, 
+            glm::value_ptr(projection));
+
+        glUniformMatrix4fv(
+            viewLocation,
+            1,
+            GL_FALSE,
+            glm::value_ptr(view));
 
         glUniform4f(
             colourLocation,
@@ -176,4 +236,39 @@ int main()
     glfwTerminate();
 
     return 0;
+}
+
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+
+    lastX = xpos;
+    lastY = ypos;
+
+    
+    xoffset *= cameraSensitivity;
+    yoffset *= cameraSensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    if (pitch > 89.0f) pitch = 89.0f;
+    if (pitch < -89.0f) pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(front);
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
 }
