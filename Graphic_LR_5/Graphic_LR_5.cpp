@@ -12,6 +12,9 @@
 
 #include "Camera.h"
 #include "ShaderLoader.h"
+#include "Model.h"
+
+
 
 
 // переменные камеры
@@ -40,7 +43,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // создание контекста окна
-    GLFWwindow* window = glfwCreateWindow(512, 512, "MainWindow", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1024, 768, "MainWindow", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -64,55 +67,7 @@ int main()
     fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
     printf("This version OpenGL running is %s\n", version_str);
     printf("This device OpenGL running is %s\n", device_str);
-
-
-    // вычисление позиций точек
-    float points[12];
-
-    const float PI = 3.1415926535f;
-    const float R = 0.8f;
-
-    for (int i = 0; i < 6; i++)
-    {
-        float angle = -i * PI / 3.0f;
-        float x = R * cos(angle);
-        float y = R * sin(angle);
-        points[2 * i] = x;
-        points[2 * i + 1] = y;
-    }
-
-    GLuint indices[] =
-    {
-        0, 1, 2,
-        0, 2, 3,
-        0, 3, 4,
-        0, 4, 5
-    };
-
-    // генерация буферов
-    GLuint VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    // привязка буферов
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
-    glEnableVertexAttribArray(0);
-
-    // отвязка буферов
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-
-
+   
     // Подключение шейдеров                                      
 
     GLuint shader_program = LoadShaders("Shaders/vertex.txt", "Shaders/fragment.txt");
@@ -123,9 +78,11 @@ int main()
         return -1;
     }
 
+    Model model("../Libs/Graph_LR3.obj");
+
 
     // получение адреса для изменения цвета
-    GLint colourLocation = glGetUniformLocation(shader_program, "ourColour");
+    GLint colourLocation = glGetUniformLocation(shader_program, "lightColour");
 
     // получение адресов для вершинного шейдера
     GLint projectionLocation = glGetUniformLocation(shader_program, "projection");
@@ -158,16 +115,22 @@ int main()
 
         // отрисовка
 
-        float timeValue = glfwGetTime();
+        glUniform3f(
+            colourLocation,
+            0.8f,
+            0.5f,
+            0.3f
+        );
 
         glClearColor(1.0f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shader_program);
-        glBindVertexArray(VAO);
 
 
         glm::mat4 view = cameraObject.GetViewMatrix();
+
+        glm::mat4 modelMatrix = glm::mat4(1.0f);
 
         glUniformMatrix4fv(
             projectionLocation,
@@ -181,14 +144,14 @@ int main()
             GL_FALSE,
             glm::value_ptr(view));
 
-        glUniform4f(
-            colourLocation,
-            (float)0.3f + 0.5f * sin(1.5f * timeValue),
-            (float)0.6f + 0.3f * sin(3.0f * timeValue),
-            (float)1.0f - 0.8f * sin(timeValue + 0.5f * PI),
-            1.0f);
+        glUniformMatrix4fv(
+            modelLocation,
+            1,
+            GL_FALSE,
+            glm::value_ptr(modelMatrix));
 
-        glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+
+        model.Draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

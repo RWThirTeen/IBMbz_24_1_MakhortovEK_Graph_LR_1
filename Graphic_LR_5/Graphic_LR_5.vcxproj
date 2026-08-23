@@ -154,10 +154,14 @@
     <ClCompile Include="..\Graphic_LR_1\glew-2.3.1\src\glew.c" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Graphic_LR_5.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="ShaderLoader.h" />
   </ItemGroup>
   <ItemGroup>
