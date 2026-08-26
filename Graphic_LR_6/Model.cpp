@@ -9,8 +9,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-Assimp::Importer importer;
-
 
 Model::Model(string const& path)
 {
@@ -24,7 +22,10 @@ void Model::loadModel(string const& path)
     const aiScene* scene = importer.ReadFile(
             path,
             aiProcess_Triangulate |
-            aiProcess_FlipUVs);
+            aiProcess_FlipUVs |
+            aiProcess_GenSmoothNormals |
+            aiProcess_JoinIdenticalVertices);
+
 
     directory = path.substr(0, path.find_last_of('/'));
 
@@ -48,6 +49,11 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
+    std::cout
+        << "Vertices: " << mesh->mNumVertices
+        << ", faces: " << mesh->mNumFaces
+        << std::endl;
+
     vector<Vertex> vertices;
     vector<unsigned int> indices;
 

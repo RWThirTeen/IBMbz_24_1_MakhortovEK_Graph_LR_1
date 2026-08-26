@@ -42,6 +42,8 @@ int main()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
+
+    glfwWindowHint(GLFW_DEPTH_BITS, 24);
     // создание контекста окна
     GLFWwindow* window = glfwCreateWindow(1024, 768, "MainWindow", NULL, NULL);
     if (!window)
@@ -49,6 +51,10 @@ int main()
         glfwTerminate();
         return -1;
     }
+
+    
+
+    
 
     glfwMakeContextCurrent(window);
     glewExperimental = GL_TRUE;
@@ -68,7 +74,12 @@ int main()
     printf("This version OpenGL running is %s\n", version_str);
     printf("This device OpenGL running is %s\n", device_str);
     
-    
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
     
     // Подключение шейдеров                                      
 
@@ -84,6 +95,7 @@ int main()
     // подключение модели
     Model model("../Libs/Graph_LR3.obj");
 
+    
 
     // получение адреса униформ шейдеров
     GLint colourLocation = glGetUniformLocation(shader_program, "lightColour");
@@ -115,9 +127,9 @@ int main()
         100.0f);
 
     // настройка света
-    glm::vec3 lightPos(3.2f, 2.0f, 5.0f);
+    glm::vec3 lightPos(1.5f, 1.0f, 3.0f);
     glm::vec3 lightAmbient(0.2f, 0.2f, 0.2f);
-    glm::vec3 lightDiffuse(1.0f, 1.0f, 1.0f);
+    glm::vec3 lightDiffuse(0.8f, 0.8f, 0.8f);
     glm::vec3 lightSpecular(1.0f, 1.0f, 1.0f);
 
     GLint lightPosLocation = glGetUniformLocation(shader_program, "light.position");
@@ -125,26 +137,20 @@ int main()
     GLint lightDifLocation = glGetUniformLocation(shader_program, "light.diffuse");
     GLint lightSpecLocation = glGetUniformLocation(shader_program, "light.specular");
 
-    glUniform3f(lightPosLocation, lightPos.x, lightPos.y, lightPos.z);
-    glUniform3f(lightAmbLocation, lightAmbient.x, lightAmbient.y, lightAmbient.z);
-    glUniform3f(lightDifLocation, lightDiffuse.x, lightDiffuse.y, lightDiffuse.z);
-    glUniform3f(lightSpecLocation, lightSpecular.x, lightSpecular.y, lightSpecular.z);
+    
 
     // настройка материала
     glm::vec3 materialAmbient(0.1f, 0.1f, 0.8f);
     glm::vec3 materialDiffuse(0.1f, 0.1f, 0.5f);
     glm::vec3 materialSpecular(1.0f, 1.0f, 1.0f);
-    float materialShininess(0.5f);
+    float materialShininess(50.0f);
     
     GLint materialAmbLocation = glGetUniformLocation(shader_program, "material.ambient");
     GLint materialDifLocation = glGetUniformLocation(shader_program, "material.diffuse");
     GLint materialSpecLocation = glGetUniformLocation(shader_program, "material.specular");
     GLint materialShiLocation = glGetUniformLocation(shader_program, "material.shininess");
 
-    glUniform3f(materialAmbLocation, materialAmbient.x, materialAmbient.y, materialAmbient.z);
-    glUniform3f(materialDifLocation, materialDiffuse.x, materialDiffuse.y, materialDiffuse.z);
-    glUniform3f(materialSpecLocation, materialSpecular.x, materialSpecular.y, materialSpecular.z);
-    glUniform1f(materialShiLocation, materialShininess);
+    
 
     // тело цикла отрисовки
     while (!glfwWindowShouldClose(window))
@@ -153,15 +159,8 @@ int main()
 
         // отрисовка
 
-        glUniform3f(
-            colourLocation,
-            0.8f,
-            0.5f,
-            0.3f
-        );
-
         glClearColor(0.5f, 0.5f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(shader_program);
 
@@ -199,6 +198,17 @@ int main()
             cameraObject.cameraPos.x,
             cameraObject.cameraPos.y, 
             cameraObject.cameraPos.z);
+
+
+        glUniform3f(lightPosLocation, lightPos.x, lightPos.y, lightPos.z);
+        glUniform3f(lightAmbLocation, lightAmbient.x, lightAmbient.y, lightAmbient.z);
+        glUniform3f(lightDifLocation, lightDiffuse.x, lightDiffuse.y, lightDiffuse.z);
+        glUniform3f(lightSpecLocation, lightSpecular.x, lightSpecular.y, lightSpecular.z);
+
+        glUniform3f(materialAmbLocation, materialAmbient.x, materialAmbient.y, materialAmbient.z);
+        glUniform3f(materialDifLocation, materialDiffuse.x, materialDiffuse.y, materialDiffuse.z);
+        glUniform3f(materialSpecLocation, materialSpecular.x, materialSpecular.y, materialSpecular.z);
+        glUniform1f(materialShiLocation, materialShininess);
 
         
 

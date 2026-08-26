@@ -32,8 +32,6 @@ uniform vec3 viewPos;
 
 void main()
 {
-	//frag_colour = vec4(lightColour, 1.0f);
-
 	vec3 ambient = light.ambient * material.ambient;
 
 	vec3 norm = normalize(Normal);
@@ -45,4 +43,7 @@ void main()
 	vec3 reflectDir = reflect(-lightDir, norm);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
 	vec3 specular = light.specular * (spec * material.specular);
+
+	
+	frag_colour = vec4(ambient + diffuse + specular, 1.0f);
 }
