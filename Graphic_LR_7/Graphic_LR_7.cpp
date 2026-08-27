@@ -16,7 +16,6 @@
 
 
 
-
 // переменные камеры
 Camera* camera = nullptr;
 
@@ -24,6 +23,22 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
     camera -> RotateCamera(xposIn, yposIn);
 }
+
+
+// поля для управления объектом объекта
+
+float rotationBase = 0.0f;
+const float baseRotationMinValue = -120.0f;
+const float baseRotationMaxValue = 120.0f;
+
+float rotationShoulder1 = 0.0f;
+const float shoulder1RotationMinValue = -100.0f;
+const float shoulder1RotationMaxValue = 30.0f;
+
+float rotationShoulder2 = 0.0f;
+const float shoulder2RotationMinValue = -45.0f;
+const float shoulder2RotationMaxValue = 45.0f;
+
 
 
 
@@ -52,6 +67,9 @@ int main()
         return -1;
     }
 
+    
+
+    
 
     glfwMakeContextCurrent(window);
     glewExperimental = GL_TRUE;
@@ -147,14 +165,65 @@ int main()
     GLint materialSpecLocation = glGetUniformLocation(shader_program, "material.specular");
     GLint materialShiLocation = glGetUniformLocation(shader_program, "material.shininess");
 
-    
+
+    float lastFrame = 0.0f;
 
     // тело цикла отрисовки
     while (!glfwWindowShouldClose(window))
     {
         cameraObject.MoveCamera(window);
 
-       
+
+        // управление деталями объекта
+
+        float currentFrame = glfwGetTime();
+        float deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        const float rotationSpeed = 60.0f * deltaTime;
+
+        if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+        {
+            rotationBase -= rotationSpeed;
+            if (rotationBase < baseRotationMinValue)
+                rotationBase = baseRotationMinValue;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
+        {
+            rotationBase += rotationSpeed;
+            if (rotationBase > baseRotationMaxValue)
+                rotationBase = baseRotationMaxValue;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+        {
+            rotationShoulder1 += rotationSpeed;
+            if (rotationShoulder1 > shoulder1RotationMaxValue)
+                rotationShoulder1 = shoulder1RotationMaxValue;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+        {
+            rotationShoulder1 -= rotationSpeed;
+            if (rotationShoulder1 < shoulder1RotationMinValue)
+                rotationShoulder1 = shoulder1RotationMinValue;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+        {
+            rotationShoulder2 += rotationSpeed;
+            if (rotationShoulder2 > shoulder2RotationMaxValue)
+                rotationShoulder2 = shoulder2RotationMaxValue;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+        {
+            rotationShoulder2 -= rotationSpeed;
+            if (rotationShoulder2 < shoulder2RotationMinValue)
+                rotationShoulder2 = shoulder2RotationMinValue;
+        }
+
 
         // отрисовка
 
@@ -210,8 +279,8 @@ int main()
         glUniform1f(materialShiLocation, materialShininess);
 
         
-        
-        model.Draw();
+
+        model.Draw(shader_program, rotationBase, rotationShoulder1, rotationShoulder2);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
