@@ -122,7 +122,7 @@ int main()
             0.3f
         );
 
-        glClearColor(1.0f, 0.2f, 0.3f, 1.0f);
+        glClearColor(0.5f, 0.2f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shader_program);

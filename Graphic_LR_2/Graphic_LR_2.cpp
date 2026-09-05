@@ -61,9 +61,12 @@ int main()
     const float PI = 3.1415926535f;
     const float R = 0.8f;
 
-    for (int i = 0; i < 6; i++)
+    
+
+
+    for (int i = 0; i < 5; i++)
     {
-        float angle = -i * PI / 3.0f;
+        float angle = -i * 2.0f * PI / 5.0f;
         float x = R * cos(angle);
         float y = R * sin(angle);
         points[2 * i] = x;
@@ -74,8 +77,7 @@ int main()
     { 
         0, 1, 2,
         0, 2, 3,
-        0, 3, 4,
-        0, 4, 5
+        0, 3, 4
     };
 
     // генерация буферов
@@ -175,7 +177,7 @@ int main()
     {
         float timeValue = glfwGetTime();
 
-        glClearColor(1.0f, 0.2f, 0.3f, 1.0f);
+        glClearColor(0.5f, 0.2f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shader_program);

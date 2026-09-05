@@ -49,27 +49,27 @@ int main()
      // тело цикла отрисовки
      while (!glfwWindowShouldClose(window))
      {
-         glClearColor(1.0f, 0.2f, 0.3f, 1.0f);
+         glClearColor(0.5f, 0.2f, 0.7f, 1.0f);
          glClear(GL_COLOR_BUFFER_BIT);
 
 
          glBegin(GL_TRIANGLES);
          
-         glColor3f(0.4f, 1.0f, 0.4f);
+         glColor3f(1.0f, 1.0f, 1.0f);
 
          const float PI = 3.1415926535f;
          const float R = 0.8f;
 
-         for (int i = 0; i < 6; i++)
+         for (int i = 0; i < 5; i++)
          {
              glVertex2f(0.0f, 0.0f);
              
-             float angle = -i * PI / 3.0f;
+             float angle = -i * 2.0f * PI / 5.0f;
              float x = R * cos(angle);
              float y = R * sin(angle);
              glVertex2f(x, y);
              
-             angle = ( - i + 1 ) * PI / 3.0f;
+             angle = ( - i + 1 ) * 2.0f * PI / 5.0f;
              x = R * cos(angle);
              y = R * sin(angle);
              glVertex2f(x, y);
