@@ -108,7 +108,7 @@ int main()
 
 
     // подключение модели
-    Model model("../Libs/Graph_LR3.obj");
+    Model model("../Libs/Manip_LR3.obj");
 
     
 

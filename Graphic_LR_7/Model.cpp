@@ -4,6 +4,7 @@
 #include "GLFW\glfw3.h"
 
 #include <iostream>
+//using namespace std;
 
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
@@ -58,6 +59,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
+        /*cout << "Mesh index: " << meshes.size() << endl;
+        cout << "Vertices: " << mesh->mNumVertices << endl;
+        cout << "Faces: " << mesh->mNumFaces << endl;*/
+
         Vertex vertex;
 
         vertex.Position.x = mesh->mVertices[i].x;
@@ -102,8 +107,8 @@ void Model::Draw(GLuint shaderProgram,
 
     
     
-    glm::vec3 pivotShouder1(-0.467f, 1.35f, -1.05f);
-    glm::vec3 pivotShouder2(0.355f, 4.64f, 1.30f);
+    glm::vec3 pivotShouder1(1.217f, 3.25f, -1.05f);
+    glm::vec3 pivotShouder2(1.305f, 9.64f, 1.30f);
     glm::mat4 shoulder1Transform = glm::mat4(1.0f);
     glm::mat4 shoulder2Transform = glm::mat4(1.0f);
 
@@ -114,7 +119,7 @@ void Model::Draw(GLuint shaderProgram,
     shoulder1Transform = glm::rotate(
         shoulder1Transform,
         glm::radians(rotationShoulder1),
-        glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::vec3(0.0f, 0.0f, 1.0f));
 
     shoulder1Transform = glm::translate(
         shoulder1Transform,
@@ -127,7 +132,7 @@ void Model::Draw(GLuint shaderProgram,
     shoulder2Transform = glm::rotate(
         shoulder2Transform,
         glm::radians(rotationShoulder2),
-        glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::vec3(0.0f, 0.0f, 1.0f));
 
     shoulder2Transform = glm::translate(
         shoulder2Transform,
@@ -142,19 +147,23 @@ void Model::Draw(GLuint shaderProgram,
 
         switch (i)
         {
-            case 11:
+            case 1:
                 model = baseTransform;
                 break;
 
-            case 12:
+            case 2:
                 model = baseTransform;
                 break;
 
-            case 13:
+            case 3:
+                model = baseTransform;
+                break;
+
+            case 4:
                 model = shoudler1World;
                 break;
 
-            case 14:
+            case 5:
                 model = shoudler2World;
                 break;
 
@@ -171,16 +180,4 @@ void Model::Draw(GLuint shaderProgram,
 
         meshes[i].Draw();
     }
-        
-
-
-    
-
-    //roundbase
-    //meshes[11].Draw();
-    //meshes[12].Draw();
-
-    //meshes[13].Draw(); shoulder1 0,2 1,05 1,35
-    //meshes[14].Draw(); shoulder2 0,51 -1,3 4,8
-
 }
